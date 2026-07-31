@@ -12,7 +12,7 @@ from typing import Optional
 import gradio as gr
 import torch
 
-from infer.gradio_utils import editor_to_image_and_mask, make_mask_overlay
+from infer.gradio_utils import editor_to_image_and_mask, ensure_square_pair, make_mask_overlay
 from infer.utils import build_pipeline
 
 
@@ -112,6 +112,7 @@ def build_demo(holder: PipelineHolder, save_dir: Path):
     ):
         try:
             image, mask = editor_to_image_and_mask(editor_value)
+            image, mask = ensure_square_pair(image, mask, int(resolution))
         except ValueError as exc:
             raise gr.Error(str(exc)) from exc
 
@@ -122,10 +123,11 @@ def build_demo(holder: PipelineHolder, save_dir: Path):
             raise gr.Error(str(exc)) from exc
 
         # Pipeline maps retry -> torch seed (0 if retry == 0 else retry)
+        # image_size kept equal to square side (CLI-equivalent square input)
         results = pipe(
             [image],
             [mask],
-            image_size=int(resolution),
+            image_size=image.size[0],
             num_steps=int(num_steps),
             guidance_scale=float(cfg),
             paste=bool(paste),
@@ -177,7 +179,7 @@ def build_demo(holder: PipelineHolder, save_dir: Path):
                     num_steps = gr.Slider(1, 50, value=20, step=1, label="Steps")
                     cfg = gr.Slider(1.0, 7.5, value=2.5, step=0.1, label="CFG")
                 with gr.Row():
-                    resolution = gr.Slider(256, 1024, value=512, step=64, label="Resolution (short side)")
+                    resolution = gr.Slider(256, 1024, value=512, step=64, label="Resolution (square, matches CLI)")
                     seed = gr.Number(value=0, precision=0, label="Seed (0 = default)")
                 with gr.Row():
                     paste = gr.Checkbox(value=True, label="Paste")

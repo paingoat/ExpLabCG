@@ -118,6 +118,32 @@ def editor_to_image_and_mask(
     return image, Image.fromarray(mask_bin, mode="L")
 
 
+def ensure_square_pair(
+    image: Image.Image,
+    mask: Image.Image,
+    resolution: int,
+) -> Tuple[Image.Image, Image.Image]:
+    """
+    Match CLI SimpleInferDataset: force square resolution x resolution.
+    Moebius lambda layers assume square feature maps (h = w = int(sqrt(n))).
+    """
+    resolution = int(resolution)
+    if resolution <= 0:
+        raise ValueError(f"resolution must be positive, got {resolution}")
+    # Keep VAE / UNet friendly sizes (multiples of 64)
+    resolution = max(64, (resolution // 64) * 64)
+
+    image = image.convert("RGB")
+    mask = mask.convert("L")
+    if image.size != (resolution, resolution):
+        image = image.resize((resolution, resolution), Image.Resampling.BICUBIC)
+    if mask.size != (resolution, resolution):
+        mask = mask.resize((resolution, resolution), Image.Resampling.NEAREST)
+
+    mask_arr = np.where(np.asarray(mask) >= 128, 255, 0).astype(np.uint8)
+    return image, Image.fromarray(mask_arr, mode="L")
+
+
 def make_mask_overlay(image: Image.Image, mask: Image.Image, color=(255, 64, 64), alpha=0.45) -> Image.Image:
     """RGB visualization of the mask overlaid on the input image."""
     base = image.convert("RGBA")
