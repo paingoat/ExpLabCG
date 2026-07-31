@@ -28,6 +28,25 @@ source "$(conda info --base)/etc/profile.d/conda.sh"
 # Newer conda rejects/ignores bare -y on some commands; use ALWAYS_YES instead.
 export CONDA_ALWAYS_YES=true
 
+# Conda 25+ requires accepting Anaconda channel Terms of Service in non-interactive runs.
+accept_conda_tos() {
+  if ! conda tos accept --help >/dev/null 2>&1; then
+    echo "[setup_env] conda tos not available — skipping ToS accept step."
+    return 0
+  fi
+  local channels=(
+    "https://repo.anaconda.com/pkgs/main"
+    "https://repo.anaconda.com/pkgs/r"
+  )
+  echo "[setup_env] Accepting Conda channel Terms of Service (if required)..."
+  local ch
+  for ch in "${channels[@]}"; do
+    conda tos accept --override-channels --channel "${ch}" || true
+  done
+}
+
+accept_conda_tos
+
 if conda env list | awk '{print $1}' | grep -qx "${ENV_NAME}"; then
   if [[ "${RECREATE}" == "1" ]]; then
     echo "[setup_env] Removing existing env ${ENV_NAME} (RECREATE=1)..."

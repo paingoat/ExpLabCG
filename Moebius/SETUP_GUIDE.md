@@ -158,6 +158,16 @@ Preflight checks (script exits early on failure):
 
 ## 7. Troubleshooting
 
+### `CondaToSNonInteractiveError` / Terms of Service
+
+Newer Conda blocks non-interactive `conda create` until default Anaconda channel ToS are accepted. `scripts/setup_env.sh` runs `conda tos accept` automatically. Manual fix:
+
+```bash
+conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+bash scripts/setup_env.sh
+```
+
 ### `sm_120` not compatible / no kernel image
 
 Wrong PyTorch CUDA build. Uninstall and reinstall cu128:
