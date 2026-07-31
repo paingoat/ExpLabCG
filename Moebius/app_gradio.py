@@ -81,7 +81,12 @@ def parse_args():
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--server-name", type=str, default="0.0.0.0")
     parser.add_argument("--server-port", type=int, default=7860)
-    parser.add_argument("--share", action="store_true", default=False)
+    parser.add_argument(
+        "--share",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Create a public Gradio share link (default: True). Use --no-share to disable.",
+    )
     parser.add_argument(
         "--save-dir",
         type=str,

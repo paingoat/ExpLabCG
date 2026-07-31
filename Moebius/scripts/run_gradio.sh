@@ -12,6 +12,7 @@ SERVER_PORT="${SERVER_PORT:-7860}"
 MODEL_CONFIG="${MODEL_CONFIG:-config/model_cfg/moebius.yaml}"
 MODEL_WEIGHT="${MODEL_WEIGHT:-weight/Moebius/ft_celebahq/diffusion_pytorch_model.bin}"
 DEVICE="${DEVICE:-cuda}"
+SHARE="${SHARE:-1}"
 
 load_env_file() {
   local f="$1"
@@ -101,11 +102,17 @@ for mod in ("gradio", "diffusers", "PIL"):
 print("Python deps OK.")
 PY
 
-echo "[run_gradio] Launching Gradio on ${SERVER_NAME}:${SERVER_PORT} ..."
+SHARE_ARGS=(--share)
+if [[ "${SHARE}" == "0" || "${SHARE}" == "false" || "${SHARE}" == "False" ]]; then
+  SHARE_ARGS=(--no-share)
+fi
+
+echo "[run_gradio] Launching Gradio on ${SERVER_NAME}:${SERVER_PORT} (share=${SHARE_ARGS[*]}) ..."
 exec python app_gradio.py \
   --model-config "${MODEL_CONFIG}" \
   --model-weight "${MODEL_WEIGHT}" \
   --device "${DEVICE}" \
   --server-name "${SERVER_NAME}" \
   --server-port "${SERVER_PORT}" \
+  "${SHARE_ARGS[@]}" \
   "$@"
