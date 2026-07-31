@@ -46,7 +46,7 @@ bash scripts/setup_env.sh
 
 What this does:
 
-1. Creates conda env **`moebius`** with **Python 3.11** (`-y`)
+1. Creates conda env **`moebius`** with **Python 3.11** (non-interactive via `CONDA_ALWAYS_YES`, no `-y`)
 2. Installs **torch 2.7.1 + torchvision 0.22.1** from the official **cu128** index (includes Blackwell `sm_120`)
 3. Installs `requirements.txt` (diffusers 0.38.0, Gradio, etc.)
 4. Tries `flash-linear-attention[cuda]==0.3.2` (needed for PixelHacker teacher training; **optional** for Moebius-only Gradio)

@@ -122,7 +122,7 @@ bash scripts/setup_env.sh
 bash scripts/download_model.sh
 
 # Manual equivalent:
-conda create -n moebius python=3.11 -y
+CONDA_ALWAYS_YES=true conda create -n moebius python=3.11
 conda activate moebius
 pip install torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cu128
 pip install -r requirements.txt

@@ -25,16 +25,19 @@ fi
 # shellcheck disable=SC1091
 source "$(conda info --base)/etc/profile.d/conda.sh"
 
+# Newer conda rejects/ignores bare -y on some commands; use ALWAYS_YES instead.
+export CONDA_ALWAYS_YES=true
+
 if conda env list | awk '{print $1}' | grep -qx "${ENV_NAME}"; then
   if [[ "${RECREATE}" == "1" ]]; then
     echo "[setup_env] Removing existing env ${ENV_NAME} (RECREATE=1)..."
-    conda env remove -n "${ENV_NAME}" -y
-    conda create -n "${ENV_NAME}" "python=${PYTHON_VERSION}" -y
+    conda env remove -n "${ENV_NAME}"
+    conda create -n "${ENV_NAME}" "python=${PYTHON_VERSION}"
   else
     echo "[setup_env] Env ${ENV_NAME} already exists — skipping create (set RECREATE=1 to recreate)."
   fi
 else
-  conda create -n "${ENV_NAME}" "python=${PYTHON_VERSION}" -y
+  conda create -n "${ENV_NAME}" "python=${PYTHON_VERSION}"
 fi
 
 conda activate "${ENV_NAME}"
